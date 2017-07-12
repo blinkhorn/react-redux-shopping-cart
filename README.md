@@ -249,15 +249,15 @@ const Cart = (props) => {
 // More information about the implementation pattern below can be found at the link below
 // https://github.com/reactjs/react-redux/blob/master/docs/api.md#connectmapstatetoprops-mapdispatchtoprops-mergeprops-options
 
-// Subscribes the container component to any changes in Redux-managed state
-// the state being mapped to props is the redux state
+// Subscribes the component to any changes in Redux-managed state (the store)
+// the Store's state is being mapped to, or passed into, the components as props
 function mapStateToProps(state, props) {
   return {
     cart: state.cart
   };
 }
 
-// Changes in our program will be reflected when new actions are dispatched
+// Changes in our program will be reflected when new actions are dispatched to the reducer
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators(CartActions, dispatch)
