@@ -31,10 +31,10 @@ Run the following command...
 
 ## Project Structuring
 
-After we've installed these dependencies, let's create directories for `actions`, `components`, `container`, `reducers` and `stylesheets` in the `src` directory.
+After we've installed these dependencies, let's create directories for `actions`, `components`, `reducers` and `stylesheets` in the `src` directory.
 
 ```bash
- $ mkdir src/actions src/components src/reducers src/containers src/stylesheets
+ $ mkdir src/actions src/components src/reducers src/stylesheets
  $ mv src/App.js src/components/App.js
  $ mv src/App.css src/stylesheets/App.css
  $ mv src/index.css src/stylesheets/index.css
@@ -69,9 +69,8 @@ export default (initialState)=>{
 
 Ultimately, a store uses the reducer to apply an action to a state, or more specifically, to a copy of the state.
 
-Stores use **reducers** to determine which change – or action – to apply to the current application state held in the store. The actions define what the change actually is, while the reducer determines which change to make, or which ***action***.
-
-<!-- AM: ^ fix this ^ -->
+Stores use **reducers** to determine which change – or action – to apply to the current application state. - An action defines what change needs to take place as well as any data required to make that change
+- The reducer executes the change described in the action
 
 ## Adding in Reducers
 
@@ -92,7 +91,7 @@ import cart from './CartReducers'
 import { combineReducers } from 'redux'
 
 // the object returned by this function must have a key named `cart` since `cart`
-// will be a *prop* on our Cart container element
+// will be a *prop* on our Cart component
 const rootReducer = combineReducers({
   cart //ES6 short hand for {cart: cart}
 })
@@ -154,11 +153,7 @@ export const removeFromCart = (item) => {
 }
 ```
 
-Now we've added in the definitive pieces of a working Redux app. Next, we will add in presentational and container components.
-
-## Adding a Presentational Component
-
-<!-- AM: This is definitely not presentational. It manages state that is not purely UI. -->
+## Adding a Shelf Component
 
 ```bash
  $ touch src/components/Shelf.js
@@ -205,9 +200,9 @@ class Shelf extends Component {
 export default Shelf
 ```
 
-## Adding a Container Component
+## Adding a Cart Component
 
-Before we add in a container, let's talk about how Redux interacts with container components and presentational components differently.
+Before we continue coding, let's talk about how Redux interacts with container components and presentational components differently.
 
 > From [Redux Docs: Presentational and Container Components](http://redux.js.org/docs/basics/UsageWithReact.html#presentational-and-container-components)
 
@@ -215,13 +210,13 @@ Before we add in a container, let's talk about how Redux interacts with containe
 
 ![Comparing container components and presentational components in Redux](./lesson-images/redux-presentational-container-diffs.png)
 
+> [Here's another resource from Dan Abramov](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0).
+
 ```bash
- $ touch src/containers/Cart.js
+ $ touch src/components/Cart.js
 ```
 
-In `src/containers/Cart.js`...
-
-<!-- AM: This below component is not a container component. All it does is render. -->
+In `src/components/Cart.js`...
 
 ```js
 import React from 'react'
@@ -282,9 +277,9 @@ export default wrappedComponent
 
 ```
 
-In `mapStateToProps`, we're passing in `props` but not using it. The `Cart` container component will only be receiving props from redux.
+In `mapStateToProps`, we're passing in `props` but not using it. The `Cart` component will only be receiving props from redux.
 
-Next, we'll head over to `App.js` to add in our new container component.
+Next, we'll head over to `App.js` to add in our new component.
 
 <details>
   <summary><strong>
@@ -311,7 +306,7 @@ In `components/App.js`...
 
 ```js
 import React, { Component } from 'react'
-import Cart from '../containers/Cart'
+import Cart from '../components/Cart'
 
 import '../stylesheets/App.css'
 
