@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import Cart from '../containers/Cart'
+import Cart from '../components/Cart'
 
 import '../stylesheets/App.css'
 

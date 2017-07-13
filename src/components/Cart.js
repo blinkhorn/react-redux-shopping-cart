@@ -31,14 +31,14 @@ const Cart = (props) => {
 // https://github.com/reactjs/react-redux/blob/master/docs/api.md#connectmapstatetoprops-mapdispatchtoprops-mergeprops-options
 
 //Subscribes the container component to any changes in Redux-managed state
-function mapStateToProps(state, props) {
+function mapStoreStateToComponentProps(state, props) {
   return {
     cart: state.cart
   };
 }
 
 //Changes in our program will be reflected when new actions are dispatched
-function mapDispatchToProps(dispatch) {
+function mapDispatchToComponentProps(dispatch) {
   return {
     actions: bindActionCreators(CartActions, dispatch)
   }
@@ -48,7 +48,10 @@ function mapDispatchToProps(dispatch) {
 // export default connect(mapStateToProps, mapDispatchToProps)(Cart)
 
 // returns a wrapper that we need to pass the component into
-const connection = connect(mapStateToProps, mapDispatchToProps)
+const connection = connect(
+  mapStoreStateToComponentProps,
+  mapDispatchToComponentProps
+)
 
 // wraps the component with the store connection configured above
 const wrappedComponent = connection(Cart)
