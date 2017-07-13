@@ -251,24 +251,24 @@ const Cart = (props) => {
 
 // Subscribes the component to any changes in Redux-managed state (the store)
 // the Store's state is being mapped to, or passed into, the components as props
-function mapStateToProps(state, props) {
+function mapStoreStateToComponentProps(state, props) {
   return {
     cart: state.cart
   };
 }
 
 // Changes in our program will be reflected when new actions are dispatched to the reducer
-function mapDispatchToProps(dispatch) {
+function mapDispatchToComponentProps(dispatch) {
   return {
     actions: bindActionCreators(CartActions, dispatch)
   }
 }
 
 // typically the lines below would be condensed into :
-// export default connect(mapStateToProps, mapDispatchToProps)(Cart)
+// export default connect(mapStoreStateToComponentProps, mapDispatchToComponentProps)(Cart)
 
 // returns a function wrapper that we need to pass the component into
-const wrapperFunction = connect(mapStateToProps, mapDispatchToProps)
+const wrapperFunction = connect(mapStoreStateToComponentProps, mapDispatchToComponentProps)
 
 // wraps the Cart component with the store connection configured above
 const wrappedComponent = wrapperFunction(Cart)
@@ -277,7 +277,7 @@ export default wrappedComponent
 
 ```
 
-In `mapStateToProps`, we're passing in `props` but not using it. The `Cart` component will only be receiving props from redux.
+In `mapStoreStateToComponentProps`, we're passing in `props` but not using it. The `Cart` component will only be receiving props from redux.
 
 Next, we'll head over to `App.js` to add in our new component.
 
@@ -296,6 +296,9 @@ Next, we'll head over to `App.js` to add in our new component.
   <a href="https://github.com/reactjs/react-redux/blob/master/docs/api.md#the-arity-of-mapstatetoprops-and-mapdispatchtoprops-determines-whether-they-receive-ownprops">
   mapStateToProps in Redux API Docs
   </a>
+
+  > We are calling `mapStateToProps` `mapStoreStateToComponentProps` in this exercise so that the function's purpose is more clear
+
 </details>
 
 <br>
