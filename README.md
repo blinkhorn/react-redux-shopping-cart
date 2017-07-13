@@ -1,25 +1,28 @@
 # Super Simple Shopping Cart in Redux
 
-We're going to build a very simple shopping cart that you can add items to.
-The complexity of the shopping cart app itself is minimal so as to help us get a feel for integrating Redux into a React app.
-
+We're going to build a very simple shopping cart that you can add items to. The complexity of the shopping cart app itself is minimal so as to help us get a feel for integrating Redux into a React app.
 
 ## Setup
 
 Fork and clone down this repo.
 
 By now, you should have `create-react-app` installed on your computer via `npm`.
-<details>
-<summary>
-If you have not, click here.
-</summary>
 
-Run the following command:
+<details>
+<summary><strong>
+If you have not, click here.
+</strong></summary>
+
+<br>
+
+Run the following command...
 
 ```bash
  $ npm i -g create-react-app
 ```
 </details>
+
+<br>
 
 ```bash
  $ create-react-app shopping-cart
@@ -28,7 +31,7 @@ Run the following command:
 
 ## Project Structuring
 
-After we've installed these dependencies, let's create directories for `actions`, `components`, `container`, `reducers`, and finally `stylesheets` in the `src` directory.
+After we've installed these dependencies, let's create directories for `actions`, `components`, `container`, `reducers` and `stylesheets` in the `src` directory.
 
 ```bash
  $ mkdir src/actions src/components src/reducers src/containers src/stylesheets
@@ -44,16 +47,16 @@ Finally, we'll update the path for `index.css` in `index.js`.
 ## Adding a Store
 
 The first step we'll take in integrating Redux with React will be to define a store using `createStore` from `redux`.
-`createStore` will take 2 arguments: the program's combined reducers (`rootReducer`), and an initial state. Recall that a store processes changes in application state with reducers.
-The store takes in a state, then applies the appropriate **action** via the **reducer**.
 
-Next we'll create a file that defines our store, titled `Store.js`:
+`createStore` will take 2 arguments: the program's combined reducers (`rootReducer`) and an initial state. Recall that a store processes changes in application state with reducers. The store takes in a state, then applies the appropriate **action** via the **reducer**.
+
+Next we'll create a file that defines our store, titled `Store.js`...
 
 ```bash
  $ touch src/Store.js
 ```
 
-in `src/Store.js`:
+in `src/Store.js`...
 
 ```js
 import {createStore} from 'redux'
@@ -66,9 +69,9 @@ export default (initialState)=>{
 
 Ultimately, a store uses the reducer to apply an action to a state, or more specifically, to a copy of the state.
 
-Stores use **reducers** to determine **which** change or ***action*** to apply to the current application state held in the store. The ***actions*** define ***what*** the change actually is, the ***reducer*** just determines which change to make, or which ***action***.
+Stores use **reducers** to determine which change – or action – to apply to the current application state held in the store. The actions define what the change actually is, while the reducer determines which change to make, or which ***action***.
 
-
+<!-- AM: ^ fix this ^ -->
 
 ## Adding in Reducers
 
@@ -76,15 +79,13 @@ Stores use **reducers** to determine **which** change or ***action*** to apply t
  $ touch src/reducers/RootReducer.js src/reducers/CartReducers.js
 ```
 
-### Using combineReducers
+### Using `combineReducers`
 
-The combineReducers helper function returns a single, aggregated object.
-As its name suggests, combineReducers combines all the reducers into a single object, then returns that object.
-We will refer to the returned object as `rootReducer` below.
-The values of `rootReducer` will be the reducer functions into a single reducing function you can
-pass to createStore.
+The `combineReducers` helper function returns a single, aggregated object. As its name suggests, `combineReducers` combines all the reducers into a single object, then returns that object.
 
-> in `src/reducers/RootReducer.js`:
+We will refer to the returned object as `rootReducer` below. The values of `rootReducer` will be the reducer functions combined into a single reducing function you can pass to `createStore`.
+
+In `src/reducers/RootReducer.js`...
 
 ```js
 import cart from './CartReducers'
@@ -99,7 +100,7 @@ const rootReducer = combineReducers({
 export default rootReducer
 ```
 
-> in `src/reducers/CartReducers.js`:
+In `src/reducers/CartReducers.js`...
 
 ```js
 export default(state = [], action) => {
@@ -116,16 +117,16 @@ export default(state = [], action) => {
 }
 ```
 
-[Switch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch) statement conditionals are used in place of `if`/`else if` conditionals
+> [Switch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch) statement conditionals are used in place of `if`/`else if` conditionals
 because they read more cleanly.
 
-## Adding an action
+## Adding an Action
 
 ```bash
  $ touch src/actions/CartActions.js
 ```
 
-> in `src/actions/CartActions.js`:
+In `src/actions/CartActions.js`...
 
 ```js
 // Action Creator function
@@ -157,11 +158,13 @@ Now we've added in the definitive pieces of a working Redux app. Next, we will a
 
 ## Adding a Presentational Component
 
+<!-- AM: This is definitely not presentational. It manages state that is not purely UI. -->
+
 ```bash
  $ touch src/components/Shelf.js
 ```
 
-> in `src/components/Shelf.js`:
+In `src/components/Shelf.js`...
 
 ```js
 import React, { Component } from 'react'
@@ -216,7 +219,9 @@ Before we add in a container, let's talk about how Redux interacts with containe
  $ touch src/containers/Cart.js
 ```
 
-> in `src/containers/Cart.js`:
+In `src/containers/Cart.js`...
+
+<!-- AM: This below component is not a container component. All it does is render. -->
 
 ```js
 import React from 'react'
@@ -277,14 +282,17 @@ export default wrappedComponent
 
 ```
 
-In `mapStateToProps`, we're passing in `props` but not using it.
-The `Cart` container component will only be receiving props from redux.
+In `mapStateToProps`, we're passing in `props` but not using it. The `Cart` container component will only be receiving props from redux.
+
 Next, we'll head over to `App.js` to add in our new container component.
 
 <details>
-  <summary>
+  <summary><strong>
     When do you need access to props?
-  </summary>
+  </strong></summary>
+
+  <br>
+
   If we had some kind of information in `props` that was pertinent to the state.
   In the example below, our `props` corresponds to `ownProps`.
   <br>
@@ -295,10 +303,11 @@ Next, we'll head over to `App.js` to add in our new container component.
   </a>
 </details>
 
+<br>
 
-## Adding Cart Container to App component
+## Adding Cart to App Component
 
-> in `components/App.js`:
+In `components/App.js`...
 
 ```js
 import React, { Component } from 'react'
@@ -317,7 +326,7 @@ class App extends Component {
 export default App
 ```
 
-## Adding App component to Application Root (index.js)
+## Adding App Component to Application Root (`index.js`)
 
 
 ```js
@@ -331,7 +340,6 @@ import { Provider } from 'react-redux'
 import App from './components/App'
 import Store from './Store'
 
-
 const StoreInstance = Store()
 
 ReactDOM.render(
@@ -342,9 +350,9 @@ ReactDOM.render(
 )
 ```
 
-## Adding in Integration with Chrome Redux Devtools Extension
+## Adding Integration with Chrome Redux Devtools Extension
 
-> in `src/Store.js`:
+In `src/Store.js`...
 
 ```js
 export default(initialState) => {
