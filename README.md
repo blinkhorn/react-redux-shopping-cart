@@ -6,27 +6,11 @@ We're going to build a very simple shopping cart that you can add items to. The 
 
 Fork and clone down this repo.
 
-By now, you should have `create-react-app` installed on your computer via `npm`.
-
-<details>
-<summary><strong>
-If you have not, click here.
-</strong></summary>
-
-<br>
-
-Run the following command...
-
-```bash
- $ npm i -g create-react-app
-```
-</details>
-
-<br>
+By now, you should have [`create-react-app`](https://github.com/facebookincubator/create-react-app) installed on your computer via `npm`.
 
 ```bash
  $ create-react-app shopping-cart
- $ npm i -S redux react-redux
+ $ npm install redux react-redux
 ```
 
 ## Project Structuring
@@ -34,118 +18,83 @@ Run the following command...
 After we've installed these dependencies, let's create directories for `actions`, `components`, `reducers` and `stylesheets` in the `src` directory.
 
 ```bash
- $ mkdir src/actions src/components src/reducers src/stylesheets
+ $ mkdir src/components src/stylesheets
+ $ touch src/actions.js src/reducers.js
  $ mv src/App.js src/components/App.js
- $ mv src/App.css src/stylesheets/App.css
- $ mv src/index.css src/stylesheets/index.css
+ $ mv src/App.css src/index.css src/stylesheets/
 ```
 
 Next, let's update the import paths for `App` in `index.js` to reflect the new locations of `App.js` and `App.css`.
 
 Finally, we'll update the path for `index.css` in `index.js`.
 
-## Adding a Store
+## One Global Store
 
 The first step we'll take in integrating Redux with React will be to define a store using `createStore` from `redux`.
 
-`createStore` will take 2 arguments: the program's combined reducers (`rootReducer`) and an initial state. Recall that a store processes changes in application state with reducers. The store takes in a state, then applies the appropriate **action** via the **reducer**.
+Following the first principle of redux - [The state of your whole application is stored in an object tree within a single store.](http://redux.js.org/docs/introduction/ThreePrinciples.html#single-source-of-truth) - we import the `createStore` function from the `'redux'` module and the `Provider` component from the `'react-redux'` module into `index.js`. We will eventually use `createStore` to create the single global redux store.
 
-Next we'll create a file that defines our store, titled `Store.js`...
+This redux store won't be defined until we have provided to it a **reducer** function. This reducer function is responsible for taking the current `state` and any `action` and return a new state updated with that action. Reducers all have the signature `(state, action) => newState`. If a reducer doesn't know how to handle an action, it should just return the state unchanged. For now we will write the simplest possible reducer, `(state, action) => state` and provide that to the store.
 
-```bash
- $ touch src/Store.js
-```
-
-in `src/Store.js`...
+In `src/reducers.js`
 
 ```js
-import {createStore} from 'redux'
-import rootReducer from './reducers/RootReducer'
-
-export default (initialState)=>{
-  return createStore(rootReducer, initialState)
-}
+export default (state, action) => state
 ```
 
-Ultimately, a store uses the reducer to apply an action to a state, or more specifically, to a copy of the state.
+We'll come back and expand this to handle our actions once we've defined them.
 
-Stores use **reducers** to determine which change – or action – to apply to the current application state. - An action defines what change needs to take place as well as any data required to make that change
-- The reducer executes the change described in the action
+We will then pass this store to the `Provider` component from `'react-redux'`. The `Provider` component wraps the application and using react [magic*](http://redux.js.org/docs/basics/UsageWithReact.html#passing-the-store), passes state down to any child component that we have given the ability to receive it (using the [`connect` function](http://redux.js.org/docs/basics/UsageWithReact.html#implementing-container-components) from `'react-redux'`).
 
-## Adding in Reducers
-
-```bash
- $ touch src/reducers/RootReducer.js src/reducers/CartReducers.js
-```
-
-### Using `combineReducers`
-
-The `combineReducers` helper function returns a single, aggregated object. As its name suggests, `combineReducers` combines all the reducers into a single object, then returns that object.
-
-We will refer to the returned object as `rootReducer` below. The values of `rootReducer` will be the reducer functions combined into a single reducing function you can pass to `createStore`.
-
-In `src/reducers/RootReducer.js`...
+Now in `index.js` we have:
 
 ```js
-import cart from './CartReducers'
-import { combineReducers } from 'redux'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { Provider } from 'react-redux'
+import { createStore } from 'redux'
+import shoppingCartApp from './reducers'
+import './stylesheets/index.css'
+import App from './components/App'
+import registerServiceWorker from './registerServiceWorker'
 
-// the object returned by this function must have a key named `cart` since `cart`
-// will be a *prop* on our Cart component
-const rootReducer = combineReducers({
-  cart //ES6 short hand for {cart: cart}
-})
+const store = createStore(
+  shoppingCartApp,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+)
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>, document.getElementById('root'))
 
-export default rootReducer
+registerServiceWorker()
 ```
 
-In `src/reducers/CartReducers.js`...
+### Aside: [Redux Devtools](https://github.com/gaearon/redux-devtools)
+The `window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()` adds the chrome redux devtools middleware to the store. This will come in super handy when writing redux.
 
-```js
-export default(state = [], action) => {
-  switch(action.type){
-    case 'ADD_ITEM':
-      return [...state, action.item]
-    case 'REMOVE_ITEM':
-      let newCart = [...state];
-      newCart.splice(action.item, 1);
-      return newCart;
-    default:
-      return state
-  }
-}
-```
+## Actions describing State Change
 
-> [Switch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch) statement conditionals are used in place of `if`/`else if` conditionals
-because they read more cleanly.
+Recall the second principle of redux - [The only way to change the state is to emit an action, an object describing what happened.](http://redux.js.org/docs/introduction/ThreePrinciples.html#state-is-read-only). Next we will define two actions for our simple cart, `'ADD_ITEM'` and `'REMOVE_ITEM'`
 
-## Adding an Action
+### Adding Actions
 
-```bash
- $ touch src/actions/CartActions.js
-```
+NOTE: In a larger application we'd have an actions directory with action creators defined in domain specific files. See the [redux todos example](http://redux.js.org/docs/basics/ExampleTodoList.html). For the sake of navigability, we're putting everything in one.
 
-In `src/actions/CartActions.js`...
+In `src/actions.js`...
 
 ```js
 // Action Creator function
 // This action will be called from a button in the UI
 export const addToCart = (item) => {
-
-  // This console.log is a side effect and technically makes this function 'impure'.
-  // It may come in handy when testing to see if we've integrated redux successfully,
-  // to determine if our actions are firing
-
-  console.log(`ACTION: adding ${item} to cart`)
   return {
-    //actions must have a type property
-    type: 'ADD_ITEM', //action naming conventions: all caps with snake-case (JAVASCRIPT_CONSTANT naming convention )
-    item //ES6 shorthand again {item: item}
+    // actions must have a type property
+    type: 'ADD_ITEM', // action naming conventions: all caps with snake-case (JAVASCRIPT_CONSTANT naming convention )
+    item // ES6 shorthand again {item: item}
   }
 }
 
 export const removeFromCart = (item) => {
-  console.log(`ACTION: Removing ${item} from cart`)
   return {
     type: 'REMOVE_ITEM',
     item
@@ -153,32 +102,30 @@ export const removeFromCart = (item) => {
 }
 ```
 
-## Adding a Shelf Component
+### Dispatching Actions from Components
 
-```bash
- $ touch src/components/Shelf.js
-```
+Next we want to add the ability for the UI to dispatch actions. To do that, we'll need a UI. We are going to have two components in our UI, a `Shelf` which represents the user input for adding items to the cart and the `Cart` which holds selectedd items and gives the option to remove them. Our example will have some hardcoded state in `Shelf` which is not realistic to a `react-redux` app (one state) but helps us keep our redux interactions minimal.
 
-In `src/components/Shelf.js`...
+Define the shelf as follows in `components/Shelf.js`
 
 ```js
-import React, { Component } from 'react'
+import { Component } from 'react'
 
 class Shelf extends Component {
-  constructor(props){
+  constructor (props) {
     super(props)
     this.state = {
       shelfItems: [
-        "Bananas",
-        "Frozen Pizza",
+        'Bananas',
+        'Frozen Pizza',
         "Flamin' Hot Cheetos",
-        "Arugula"
+        'Arugula'
       ]
     }
   }
 
-  render() {
-    const shelfItems = this.state.shelfItems.map( (item, id) => {
+  render () {
+    const shelfItems = this.state.shelfItems.map((item, id) => {
       return (
         <li key={id}>
           {item}
@@ -190,7 +137,7 @@ class Shelf extends Component {
       <div>
         <h2>Store Inventory</h2>
         <ul>
-            {shelfItems}
+          {shelfItems}
         </ul>
       </div>
     )
@@ -200,7 +147,15 @@ class Shelf extends Component {
 export default Shelf
 ```
 
-## Adding a Cart Component
+Notice there is nothing special to `redux` here at all. Just an component with internal state that has one method provided by props `addItem` which gets called with a string.
+
+`Shelf` is totally unaware of redux and will happily continue to be -- it does not depend on the global state, it gets everything it needs from props (igoring the internal state that is facilitating the example). This will be true of most of the components in a redux app, not directly interacting with the redux store but simply receiving its data and behavior from its parent.
+
+The `Cart` component will be the parent of `Shelf` and will itself be connected to the redux store.
+
+In this example we are blurring the lines between "presentational components" used for displaying data and calling functions provided by a parent and "container components" which connect to the store and pass data and functions to its children. Below are several very good articles on the conceptual distinction and the value of the destinction.
+
+#### Presentational and Container Components
 
 Before we continue coding, let's talk about how Redux interacts with container components and presentational components differently.
 
@@ -212,6 +167,8 @@ Before we continue coding, let's talk about how Redux interacts with container c
 
 > [Here's another resource from Dan Abramov](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0).
 
+### Connecting Components
+
 ```bash
  $ touch src/components/Cart.js
 ```
@@ -220,24 +177,23 @@ In `src/components/Cart.js`...
 
 ```js
 import React from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import * as CartActions from '../actions/CartActions'
-import Shelf from '../components/Shelf'
+import {removeFromCart, addToCart} from '../actions'
+import Shelf from './Shelf'
 
 const Cart = (props) => {
   let cartItems = props.cart.map((item, id) => {
     return (
       <li key={id}>
         {item}
-        <button onClick={() => props.actions.removeFromCart(id)}>-</button>
+        <button onClick={() => props.dispatch(removeFromCart(item))}>-</button>
       </li>
     )
   })
   return (
     <div>
-      <Shelf addItem={props.actions.addToCart}/>
+      <Shelf addItem={(item) => props.dispatch(addToCart(item))} />
       <h2>Cart</h2>
       <ol>
         {cartItems}
@@ -246,38 +202,25 @@ const Cart = (props) => {
   )
 }
 
-// More information about the implementation pattern below can be found at the link below
-// https://github.com/reactjs/react-redux/blob/master/docs/api.md#connectmapstatetoprops-mapdispatchtoprops-mergeprops-options
-
 // Subscribes the component to any changes in Redux-managed state (the store)
 // the Store's state is being mapped to, or passed into, the components as props
-function mapStoreStateToComponentProps(state, props) {
+function mapStateToProps (state, props) {
   return {
-    cart: state.cart
-  };
-}
-
-// Changes in our program will be reflected when new actions are dispatched to the reducer
-function mapDispatchToComponentProps(dispatch) {
-  return {
-    actions: bindActionCreators(CartActions, dispatch)
+    cart: state
   }
 }
 
-// typically the lines below would be condensed into :
-// export default connect(mapStoreStateToComponentProps, mapDispatchToComponentProps)(Cart)
+export default connect(mapStateToProps)(Cart)
 
-// returns a function wrapper that we need to pass the component into
-const wrapperFunction = connect(mapStoreStateToComponentProps, mapDispatchToComponentProps)
-
-// wraps the Cart component with the store connection configured above
-const wrappedComponent = wrapperFunction(Cart)
-
-export default wrappedComponent
-
+// The line above does the following:
+// 1. Pass mapStateToProps to the `connect` function from redux
+//    This will return a function that will take your component and wrap it in a new component
+// 2. This wrapper component defined by connect is how we get data from the redux store to
+//    be accessible in the props (as defined by mapStateToProps) of our Cart component.
+// 3. Connect will also provide a `dispatch` prop which is the store's dispatch method.
 ```
 
-In `mapStoreStateToComponentProps`, we're passing in `props` but not using it. The `Cart` component will only be receiving props from redux.
+In `mapStateToProps`, is a function with two parameters, `state` and `props`. State is the global redux store and Props are the props passed by the parent of the wrapped component (`App` in our case). The `Cart` component will only be receiving props from redux so we don't use the `props` parameter in the body of `mapStateToProps`.
 
 Next, we'll head over to `App.js` to add in our new component.
 
@@ -303,7 +246,7 @@ Next, we'll head over to `App.js` to add in our new component.
 
 <br>
 
-## Adding Cart to App Component
+#### Adding Cart to App Component
 
 In `components/App.js`...
 
@@ -324,43 +267,60 @@ class App extends Component {
 export default App
 ```
 
-## Adding App Component to Application Root (`index.js`)
+## The Reducer
 
+Recall the third principle of redux - [To specify how the state tree is transformed by actions, you write pure reducers.](http://redux.js.org/docs/introduction/ThreePrinciples.html#changes-are-made-with-pure-functions) - a reducer is just a function that takes the current state and an action and returns an new state (and does not mutate the old). This function is often described as having the _signature_ `(currentState, action) => newState`
 
-```js
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { Provider } from 'react-redux'
-// The Provider is a special type of component.
-// The Provider will wrap our App component along with a store that encapsulates
-// local states within the App component.
+`createStore` will take 2 arguments: the program's main reducer, the `rootReducer`, and optionally an initial state. The root reducer gets called with every action and the logic of the reducer function along with the type and any data of the action determines how state will be updated. If a reducer ever encounters an action with a type that it doesn't know how to handle, it should just return the state unchanged.
 
-import App from './components/App'
-import Store from './Store'
-
-const StoreInstance = Store()
-
-ReactDOM.render(
-  <Provider store={StoreInstance}>
-    <App />
-  </Provider>,
-  document.getElementById('root')
-)
-```
-
-## Adding Integration with Chrome Redux Devtools Extension
-
-In `src/Store.js`...
+in `src/reducers.js`...
 
 ```js
-export default(initialState) => {
-  return createStore(
-    rootReducer,
-    initialState,
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-  )
+function shoppingCartReducer (state = [], action) {
+  return state
 }
-```
-Now you should be able to see state changes reflected in Redux Devtools!
 
-![Redux Screenshot](./lesson-images/redux-dev-tools.png)
+export default shoppingCartReducer
+```
+
+Let's build this out to handle adding items to the list:
+
+```js
+function shoppingCartReducer (state = [], action) {
+  switch (action.type) {
+    case 'ADD_ITEM':
+      return state.concat(action.item)
+    default:
+      return state
+  }
+}
+
+export default shoppingCartReducer
+```
+
+We can test this out in the browser and start to explore the super neat redux devtools.
+
+Let's add logic for removig an item:
+
+```js
+function shoppingCartReducer (state = [], action) {
+  switch (action.type) {
+    case 'ADD_ITEM':
+      return state.concat(action.item)
+    case 'REMOVE_ITEM':
+      const indx = state.indexOf(action.item)
+      return state.filter((_, idx) => indx !== idx)
+    default:
+      return state
+  }
+}
+
+export default shoppingCartReducer
+```
+
+### Structuring reducers
+
+Like our collection of actions, this reducer is much smaller than anything more than a sample app would demand. Breaking up reducers is a much more envolved issue with great documentation [here](http://redux.js.org/docs/recipes/StructuringReducers.html).
+
+## Redux Diagram
+![Redux Diagram](https://camo.githubusercontent.com/e7921fdb62c3bab89005e090677a6cd07aceaa8c/68747470733a2f2f7062732e7477696d672e636f6d2f6d656469612f434e50336b5953577741455672544a2e6a70673a6c61726765)
