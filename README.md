@@ -34,6 +34,16 @@ The first step we'll take in integrating Redux with React will be to define a st
 
 Following the first principle of redux - [The state of your whole application is stored in an object tree within a single store.](http://redux.js.org/docs/introduction/ThreePrinciples.html#single-source-of-truth) - we import the `createStore` function from the `'redux'` module and the `Provider` component from the `'react-redux'` module into `index.js`. We will eventually use `createStore` to create the single global redux store.
 
+This redux store won't be defined until we have provided to it a **reducer** function. This reducer function is responsible for taking the current `state` and any `action` and return a new state updated with that action. Reducers all have the signature `(state, action) => newState`. If a reducer doesn't know how to handle an action, it should just return the state unchanged. For now we will write the simplest possible reducer, `(state, action) => state` and provide that to the store.
+
+In `src/reducers.js`
+
+```js
+export default (state, action) => state
+```
+
+We'll come back and expand this to handle our actions once we've defined them.
+
 We will then pass this store to the `Provider` component from `'react-redux'`. The `Provider` component wraps the application and using react [magic*](http://redux.js.org/docs/basics/UsageWithReact.html#passing-the-store), passes state down to any child component that we have given the ability to receive it (using the [`connect` function](http://redux.js.org/docs/basics/UsageWithReact.html#implementing-container-components) from `'react-redux'`).
 
 Now in `index.js` we have:
