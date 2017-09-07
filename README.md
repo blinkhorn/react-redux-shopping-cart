@@ -18,7 +18,8 @@ By now, you should have [`create-react-app`](https://github.com/facebookincubato
 After we've installed these dependencies, let's create directories for `actions`, `components`, `reducers` and `stylesheets` in the `src` directory.
 
 ```bash
- $ mkdir src/actions.js src/components src/reducers.js src/stylesheets
+ $ mkdir src/components src/stylesheets
+ $ touch src/actions.js src/reducers.js
  $ mv src/App.js src/components/App.js
  $ mv src/App.css src/index.css src/stylesheets/
 ```
